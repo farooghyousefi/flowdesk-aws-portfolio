@@ -1,0 +1,65 @@
+{
+  "name": "futures-trading-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "start": "npm run start -w apps/web",
+    "provider": "node apps/connectors/tradovate/server.mjs",
+    "bridge:hub": "node apps/connectors/ninjatrader-windows/local-hub/server.mjs",
+    "lint": "npm run lint -w apps/web && npm run lint -w packages/tests && .venv/bin/python -m compileall -q apps/connectors/databento/src apps/connectors/databento/tests apps/market_service apps/cloud_worker",
+    "test": "npm run test -w apps/web && npm run test -w packages/tests && .venv/bin/python -m pytest apps/connectors/databento/tests apps/market_service/tests apps/cloud_worker/tests -q",
+    "test:web": "npm run test -w apps/web",
+    "test:engine": "npm run test -w packages/tests",
+    "databento:setup": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/pip install -r apps/connectors/databento/requirements.txt",
+    "databento:estimate": ".venv/bin/python -m apps.connectors.databento.src.estimate",
+    "databento:download:test": ".venv/bin/python -m apps.connectors.databento.src.download",
+    "databento:validate": ".venv/bin/python -m apps.connectors.databento.src.validate",
+    "databento:preview": ".venv/bin/python -m apps.connectors.databento.src.dbn_reader preview",
+    "databento:book:test": ".venv/bin/python -m apps.connectors.databento.src.dbn_reader book",
+    "databento:verify:estimate": ".venv/bin/python -m apps.connectors.databento.src.verify_estimate",
+    "databento:verify:book": ".venv/bin/python -m apps.connectors.databento.src.verify_book",
+    "local:setup": "bash scripts/local-setup.sh",
+    "local:doctor": ".venv/bin/python -m apps.market_service.cli doctor",
+    "data:import": ".venv/bin/python -m apps.market_service.cli import",
+    "replay:demo": ".venv/bin/python -m apps.market_service.cli demo",
+    "dev:trading": "node scripts/dev-trading.mjs",
+    "test:all": "npm run lint && npm run test && npm run test:e2e",
+    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "benchmark:market": ".venv/bin/python -m apps.market_service.cli benchmark",
+    "worker:test": ".venv/bin/python -m pytest apps/cloud_worker/tests -q",
+    "worker:inspect": ".venv/bin/python -m apps.cloud_worker inspect",
+    "worker:build": "docker buildx build --platform linux/arm64 --provenance=false --load -f apps/cloud_worker/Dockerfile -t flowdesk-worker:local .",
+    "dataset:plan": ".venv/bin/python -m apps.market_service.cli dataset-plan",
+    "dataset:estimate": ".venv/bin/python -m apps.market_service.cli dataset-estimate",
+    "dataset:optimize": ".venv/bin/python -m apps.market_service.cli dataset-optimize",
+    "dataset:submit": ".venv/bin/python -m apps.market_service.cli dataset-submit",
+    "dataset:jobs": ".venv/bin/python -m apps.market_service.cli dataset-jobs",
+    "dataset:download": ".venv/bin/python -m apps.market_service.cli dataset-download",
+    "dataset:validate": ".venv/bin/python -m apps.market_service.cli dataset-validate",
+    "dataset:import": ".venv/bin/python -m apps.market_service.cli dataset-import",
+    "dataset:list": ".venv/bin/python -m apps.market_service.cli dataset-list",
+    "dataset:doctor": ".venv/bin/python -m apps.market_service.cli doctor",
+    "backtest:plan": ".venv/bin/python -m apps.market_service.cli backtest-plan",
+    "backtest:scan": ".venv/bin/python -m apps.market_service.cli backtest-scan",
+    "backtest:report": ".venv/bin/python -m apps.market_service.cli backtest-report",
+    "campaign:plan": ".venv/bin/python -m apps.market_service.campaign_cli plan",
+    "campaign:status": ".venv/bin/python -m apps.market_service.campaign_cli status",
+    "campaign:run": ".venv/bin/python -m apps.market_service.campaign_cli run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

@@ -1,0 +1,5 @@
+boto3>=1.40,<2
+requests>=2.32,<3
+databento>=0.66,<1
+sortedcontainers>=2.4,<3
+python-dotenv>=1.0,<2

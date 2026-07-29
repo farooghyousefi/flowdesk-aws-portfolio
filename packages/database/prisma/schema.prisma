@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Trade {
+  id                  String   @id
+  createdAt           DateTime @default(now())
+  date                String
+  time                String
+  instrument          String
+  direction           String
+  session             String
+  setupName           String
+  entry               Float
+  stop                Float
+  target              Float
+  exit                Float?
+  contracts           Int
+  riskUsd             Float
+  netPnl              Float?
+  rMultiple           Float?
+  statusAtConfirmation String
+  ruleCompliant       Boolean  @default(false)
+  manualConfirmed     Boolean  @default(false)
+  notes               String?
+  screenshots         Screenshot[]
+  evaluations         RuleEvaluation[]
+  orders              Order[]
+  executions          Execution[]
+}
+
+model Screenshot {
+  id        String   @id
+  tradeId   String
+  type      String
+  name      String
+  dataUrl    String
+  note      String?
+  createdAt DateTime @default(now())
+  trade     Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+}
+
+model RuleEvaluation {
+  id        String   @id
+  tradeId   String?
+  createdAt DateTime @default(now())
+  status    String
+  summary   String
+  payload   Json
+  trade     Trade?   @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+}
+
+model Signal {
+  id          String   @id
+  createdAt   DateTime @default(now())
+  instrument  String
+  direction   String
+  setupId     String
+  status      String
+  confidence  Float
+  timeframe   String
+  payload     Json
+  checklist   ChecklistItem[]
+}
+
+model ChecklistItem {
+  id             String   @id
+  signalId       String
+  rule           String
+  status         String
+  timeframe      String
+  strength       String
+  measuredValue  String
+  explanation    String
+  waitFor        String
+  invalidation   String
+  signal         Signal   @relation(fields: [signalId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id               String   @id
+  tradeId          String?
+  instrument       String
+  state            String
+  action           String
+  side             String?
+  quantity         Int
+  filled           Int?
+  averageFillPrice Float?
+  limitPrice       Float?
+  stopPrice        Float?
+  nativeError      String?
+  timestamp        DateTime
+  payload          Json
+  trade            Trade?   @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+}
+
+model Execution {
+  id          String   @id
+  tradeId     String?
+  orderId     String
+  instrument  String
+  side        String?
+  quantity    Int
+  price       Float
+  commission  Float?
+  timestamp   DateTime
+  payload     Json
+  trade       Trade?   @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+}
+
+model Position {
+  id            String   @id
+  instrument    String
+  side          String
+  quantity      Int
+  averagePrice  Float
+  unrealizedPnl Float
+  timestamp     DateTime
+  payload       Json
+}
+
+model ReplayRun {
+  id           String   @id
+  createdAt    DateTime @default(now())
+  source       String
+  speed        Float
+  signalCount  Int
+  allowedCount Int
+  blockedCount Int
+  waitingCount Int
+  report       Json
+}
+
+model BridgeLog {
+  id        String   @id
+  createdAt DateTime @default(now())
+  level     String
+  source    String
+  message   String
+  payload   Json?
+}
+
+model ChallengeConfig {
+  id                         String @id
+  startBalance               Float
+  profitTarget               Float
+  maximumLossLimit           Float
+  personalDailyLossLimit     Float
+  consistencyRule            Float
+  personalDailyProfitLimit   Float
+  maxWinningDayForBaseTarget Float
+  maxLosingTradesPerDay      Int
+  maxTradesPerDay            Int
+  maxRiskPerTrade            Float
+  drawdownSafetyReserve      Float
+}

@@ -1,0 +1,42 @@
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.next/
+apps/web/.next/
+.turbo/
+.npm-cache/
+dist/
+coverage/
+.env
+.env.local
+.env.*.local
+data/databento/
+data/app/
+data/derived/
+data/journal/
+*.tsbuildinfo
+*.log
+.DS_Store
+# Flowdesk local backups and installation markers
+.flowdesk-fix-backups/
+.flowdesk-*-last-backup
+
+# Local runtime data and account-specific configuration
+data/backups/
+data/cache/
+data/config/
+data/context/
+
+# Potentially sensitive local environment template
+.env.example
+
+# Database and market-data artifacts
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.duckdb
+*.parquet
+*.dbn
+*.dbn.zst
