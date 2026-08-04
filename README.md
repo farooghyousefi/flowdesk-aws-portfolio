@@ -1,5 +1,40 @@
 # Flowdesk AWS Research Platform
 
+> Ingestion and processing pipeline for market data on AWS. **16 GB across 81 files, 960M+ events**, processed by Python workers running as ARM64 containers on AWS Fargate.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Raw market data<br/>81 files, 16 GB] --> B[(Amazon S3<br/>raw prefix)]
+    B --> C{Hash + manifest<br/>check}
+    C -->|already processed| X[Skip]
+    C -->|new / incomplete| D[Python worker<br/>Docker ARM64]
+    D --> E[AWS Fargate<br/>serverless run]
+    E --> F[(Amazon S3<br/>derived prefix)]
+    F --> G[Analysis and<br/>research workspaces]
+```
+
+**Why these services**
+
+| Decision | Reason |
+| --- | --- |
+| S3 for storage | Cheap, durable, decoupled from compute. Raw data stays immutable. |
+| Fargate instead of EC2 | No idle instances, no host patching. Cost only while a job runs. |
+| ARM64 containers | Lower cost per vCPU-hour for this workload than x86. |
+| Hash + manifest check | A job that crashes must be restartable without processing a file twice. |
+
+**What I learned building it**
+
+The first full run died after 40 minutes. I suspected the code; it was the container memory limit, and it had been in the CloudWatch logs the whole time. Restarting the job then exposed the real problem: nothing prevented a file from being processed twice. That is why every file is now verified by hash before it is read.
+
+Idempotency and recoverability matter more than throughput. Jobs crash. Always.
+
+**Scope and honesty** — this is a research and portfolio project. It contains no real API keys, no raw market data and no broker automation. It places no orders. For complex software parts I worked with documentation and AI assistance; the architecture and the operational decisions are mine and I can explain all of them.
+
+---
+
+
 ## Deutsch
 
 Flowdesk ist ein Portfolio-Projekt fuer lokale Orderflow-Research-Workflows und AWS-orientierte Datenpipeline-Konzepte. Es verbindet deterministisches Replay, L3-Orderbuchrekonstruktion, inkrementelle Microstructure-Features, einen eventgetriebenen Backtester, zeitlich saubere Validierung, manuelle Signale, Challenge-Risikoregeln, lokale Speicherung und einen ersten Cloud-Worker fuer S3-basierte Batch-Verarbeitung.
